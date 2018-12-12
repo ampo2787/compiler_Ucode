@@ -1,0 +1,8 @@
+
+var_decl 끝
+
+local_decl 끝
+
+func_decl 파라미터 넘어가. 끝
+
+expr 넘어가.
