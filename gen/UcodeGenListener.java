@@ -1,22 +1,23 @@
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
-import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class UcodeGenListener  extends MiniGoBaseListener {
     final String space11 = "           ";
     final String lineChange = "\n";
-    private int BranchName = -1;
+    private int BranchName = 0;
     private int IfForName = 0;
 
     ParseTreeProperty<String> newTexts = new ParseTreeProperty<String>();
     symbolTable globalSymtab = new symbolTable();
     symbolTable currentTable = globalSymtab;
 
-    public int getBranchName(){
-        BranchName++;
-        return BranchName;
+    private String IFForName(){
+        return "$$" + IfForName++;
     }
+    private String BranchName(){
+        return "$$" + BranchName++;
+    }
+
 
     boolean isNormalOperation(MiniGoParser.ExprContext ctx){
         return ctx.getChildCount() == 1 || ctx.getChildCount() == 0;
@@ -51,62 +52,74 @@ public class UcodeGenListener  extends MiniGoBaseListener {
     public void exitExpr(MiniGoParser.ExprContext ctx){
         String s1 = "", s2 = "", op = "";
         if(isNormalOperation(ctx)){
-            if(ctx.children.size() == 0){
-                newTexts.put(ctx,"");
+            if(ctx.LITERAL().size() != 0){
+                s1 += space11 + "ldc " + ctx.LITERAL(0).getText() + lineChange;
+                newTexts.put(ctx, s1);
             }
             else{
-                newTexts.put(ctx, ctx.children.get(0).getText());
+                if(ctx.IDENT().getText().equals("")){
+
+                }
+                else {
+                    s1 += space11 + "lod " + currentTable.recursivefindTable(ctx.IDENT().getText()).blockLevel + " ";
+                    s1 += currentTable.recursivefindTable(ctx.IDENT().getText()).var.get(ctx.IDENT().getText()) + lineChange;
+                    newTexts.put(ctx, s1);
+                }
             }
         }
         else if(isSmallCompoundOperation(ctx)){
             newTexts.put(ctx, newTexts.get(ctx.expr(0)));
         }
         else if(isBigCompoundOperation(ctx)){
-
+            s1 += space11 + "ldc " + ctx.expr(0).getText() + lineChange;
+            s1 += space11 + "lda " + currentTable.blockLevel + " ";
+            s1 += currentTable.var.get(ctx.IDENT()) + lineChange;
+            s1 += space11 + "add" +lineChange;
+            newTexts.put(ctx, s1);
         }
         else if(isSmallCompoundArgsOperation(ctx)){
-
+            s1 += space11 + "ldp" +lineChange; //args에서
+            if(!newTexts.get(ctx.args()).equals("")){
+                for(int i=0; i<ctx.args().expr().size(); i++){
+                    s1 += newTexts.get(ctx.args().expr(i));
+                }
+            }
+            s1 += space11 + "call " + ctx.IDENT().getText() + lineChange;
+            newTexts.put(ctx, s1);
         }
         else if(isFMTOperation(ctx)){
-
+            s1 += space11 + "ldp" +lineChange;
+            s1 += newTexts.get(ctx.args());
+            s1 += space11 + "call " + ctx.IDENT() + lineChange;
+            newTexts.put(ctx, s1);
         }
         else if(isBinarySingleOperation(ctx)){
             String temp = ctx.op.getText();
             if(temp.equals("-") || temp.equals("+")){
-                s1 += space11 + "lod ";
-                s1 += currentTable.offset + " ";
-                s1 += currentTable.recursivefindTable(newTexts.get(ctx.expr(0))).var.get(newTexts.get(ctx.expr(0))) + lineChange;
+                s1 += newTexts.get(ctx.expr(0));
                 s1 += space11 + "neg";
                 newTexts.put(ctx, s1);
             }
             else if(temp.equals("--")){
-                s1 += space11 + "lod ";
-                s1 += currentTable.offset + " ";
-                s1 += currentTable.recursivefindTable(newTexts.get(ctx.expr(0))).var.get(newTexts.get(ctx.expr(0))) + lineChange;
+                s1 += newTexts.get(ctx.expr(0));
                 s1 += space11 + "dec" +lineChange;
                 newTexts.put(ctx, s1);
             }
             else if(temp.equals("++")){
-                s1 += space11 + "lod ";
-                s1 += currentTable.offset + " ";
-                s1 += currentTable.recursivefindTable(newTexts.get(ctx.expr(0))).var.get(newTexts.get(ctx.expr(0))) + lineChange;
+                s1 += newTexts.get(ctx.expr(0));
                 s1 += space11 + "inc" +lineChange;
                 newTexts.put(ctx, s1);
             }
             else{ //!
-                s1 += space11 + "lod ";
-                s1 += currentTable.offset + " ";
-                s1 += currentTable.recursivefindTable(newTexts.get(ctx.expr(0))).var.get(newTexts.get(ctx.expr(0))) + lineChange;
+                s1 += newTexts.get(ctx.expr(0));
                 s1 += space11 + "notop" +lineChange;
                 newTexts.put(ctx, s1);
             }
         }
         else if(isBinaryOperation(ctx)){
             String temp = ctx.op.getText();
-            s1 += space11 + "lod ";
-            s1 += currentTable.blockLevel + " " + currentTable.recursivefindTable(newTexts.get(ctx.left)).var.get(newTexts.get(ctx.left)) + lineChange;
-            s1 += space11 + "lod ";
-            s1 += currentTable.blockLevel + " " + currentTable.recursivefindTable(newTexts.get(ctx.left)).var.get(newTexts.get(ctx.right)) + lineChange;
+            s1 += newTexts.get(ctx.expr(0));
+            s1 += newTexts.get(ctx.expr(1));
             switch (temp) {
                 case "==":
                     s1 += space11 + "eq" + lineChange;
@@ -152,10 +165,13 @@ public class UcodeGenListener  extends MiniGoBaseListener {
 
         }
         else if(isEqualOperation(ctx)){
-            s1 += space11 + "lod ";
-            s1 += currentTable.blockLevel + " " + currentTable.recursivefindTable(ctx.IDENT().getText()).var.get(ctx.IDENT().getText()) + lineChange;
-            s1 += space11 + "lod ";
-            s1 += currentTable.blockLevel + " " + currentTable.recursivefindTable(newTexts.get(ctx.expr(0))).var.get(newTexts.get(ctx.expr(0))) + lineChange;
+            symbolTable thisTable = currentTable;
+            if(!currentTable.var.containsKey(ctx.IDENT().getText())){
+                thisTable = currentTable.recursivefindTable(ctx.IDENT().getText());
+                s1 += space11 + "lod ";
+                s1 += thisTable.blockLevel + " " + thisTable.var.get(ctx.IDENT().getText()) + lineChange;
+            }
+            s1 += newTexts.get(ctx.expr(0));
             s1 += space11 + "str " + currentTable.blockLevel + " " + currentTable.recursivefindTable(ctx.IDENT().getText()).var.get(ctx.IDENT().getText());
             s1 += lineChange;
             newTexts.put(ctx, s1);
@@ -165,9 +181,8 @@ public class UcodeGenListener  extends MiniGoBaseListener {
             s1 += space11 + "lda ";
             s1 += currentTable.blockLevel + " " + currentTable.recursivefindTable(ctx.IDENT().getText()).var.get(ctx.IDENT().getText()) + lineChange;
             s1 += space11 + "add" + lineChange;
-            s1 += space11 + "lod ";
-            s1 += currentTable.blockLevel + " " + currentTable.recursivefindTable(newTexts.get(ctx.expr(1))).var.get(newTexts.get(ctx.expr(1))) + lineChange;
-            s1 += space11 + "str " + currentTable.blockLevel + " " + currentTable.recursivefindTable(ctx.IDENT().getText()).var.get(ctx.IDENT().getText());
+            s1 += newTexts.get(ctx.expr(1));
+            s1 += space11 + "sti " + currentTable.blockLevel + " " + currentTable.recursivefindTable(ctx.IDENT().getText()).var.get(ctx.IDENT().getText());
             s1 += lineChange;
             newTexts.put(ctx, s1);
         }
@@ -183,10 +198,9 @@ public class UcodeGenListener  extends MiniGoBaseListener {
         temp += space11  + "bgn 0" + lineChange;
         temp += space11 + "ldp" + lineChange;
         temp += space11 + "call " + "main" + lineChange;
-
         temp += space11  + "end" + lineChange;
+        System.out.println(temp);
         newTexts.put(ctx, temp);
-        System.out.print(temp);
     }
 
     @Override
@@ -288,11 +302,9 @@ public class UcodeGenListener  extends MiniGoBaseListener {
         temp += ctx.IDENT().getText() + space(ctx.IDENT().getText()) + "proc ";
         temp += currentTable.offset + " ";
         temp += "2 ";
-        temp += "2 " +lineChange;
-
-        for(int i=0; i<ctx.children.size(); i++){
-            temp += newTexts.get(ctx.getChild(i));
-        }
+        temp += "2 " + lineChange;
+        temp += newTexts.get(ctx.params());
+        temp += newTexts.get(ctx.compound_stmt());
         temp += space11 + "ret" + lineChange;
         temp += space11  + "end" + lineChange;
         newTexts.put(ctx, temp);
@@ -308,7 +320,7 @@ public class UcodeGenListener  extends MiniGoBaseListener {
     public void exitParams(MiniGoParser.ParamsContext ctx) {
         String temp = "";
         for(int i=0; i< ctx.param().size(); i++){
-            temp += newTexts.get(ctx.getChild(i));
+            temp += newTexts.get(ctx.param(i));
         }
         newTexts.put(ctx, temp);
     }
@@ -327,7 +339,10 @@ public class UcodeGenListener  extends MiniGoBaseListener {
 
     @Override
     public void exitParam(MiniGoParser.ParamContext ctx) {
-        super.exitParam(ctx);
+        String temp = "";
+        temp += space11 + "sym " + currentTable.blockLevel + " "  + currentTable.var.get(ctx.IDENT().getText()) + " ";
+        temp += "1" + lineChange;
+        newTexts.put(ctx, temp);
     }
 
     @Override
@@ -361,7 +376,10 @@ public class UcodeGenListener  extends MiniGoBaseListener {
             currentTable.offset++;
         }
         else if (ctx.children.size() == 5){
-
+            currentTable.var.put(ctx.IDENT().get(0).getText(), currentTable.offset);
+            currentTable.funcVarArg.add(ctx.IDENT().get(0).getText());
+            currentTable.type_spec.add(ctx.IDENT().get(0).getText());
+            currentTable.offset++;
         }
         else if(ctx.children.size() == 4){
 
@@ -373,18 +391,50 @@ public class UcodeGenListener  extends MiniGoBaseListener {
 
     @Override
     public void exitAssign_stmt(MiniGoParser.Assign_stmtContext ctx) {
+        String temp = "";
         if(ctx.children.size() == 9){
+            temp += space11 + "sym " + currentTable.blockLevel + " ";
+            temp += currentTable.var.get(ctx.IDENT(0)) + " " + "1" + lineChange;
+            temp += space11 + "ldc " + ctx.LITERAL(0) + lineChange;
+            temp += space11 + "str " + currentTable.blockLevel + " " + currentTable.var.get(ctx.IDENT(0)) + lineChange;
+
+            temp += space11 + "sym " + currentTable.blockLevel + " ";
+            temp += currentTable.var.get(ctx.IDENT(1)) + " " + "1" + lineChange;
+            temp += space11 + "ldc " + ctx.LITERAL(1) + lineChange;
+            temp += space11 + "str " + currentTable.blockLevel + " " + currentTable.var.get(ctx.IDENT(1)) + lineChange;
 
         }
         else if (ctx.children.size() == 5){
-
+            temp += space11 + "sym " + currentTable.blockLevel + " ";
+            temp += currentTable.var.get(ctx.IDENT(0)) + " " + "1" + lineChange;
+            temp += space11 + "lod ";
+            temp += currentTable.blockLevel + " " + currentTable.var.get(newTexts.get(ctx.expr(0))) + lineChange;
+            temp += space11 + "str " + currentTable.blockLevel + " " + currentTable.var.get(ctx.IDENT(0)) + lineChange;
         }
         else if(ctx.children.size() == 4){
-
+            symbolTable thisTable = currentTable;
+            if(thisTable.var.get(ctx.IDENT(0).getText()) == null) {
+                thisTable = currentTable.recursivefindTable(ctx.IDENT(0).getText());
+                temp += space11 + "lod ";
+                temp += thisTable.blockLevel + " ";
+                temp += thisTable.var.get(ctx.IDENT(0).getText()) + lineChange;
+            }
+            temp += space11 + "lod ";
+            temp += currentTable.blockLevel + " " + currentTable.var.get(newTexts.get(ctx.expr(0))) + lineChange;
+            temp += space11 + "str " + thisTable.blockLevel + " " + thisTable.var.get(ctx.IDENT(0)) + lineChange;
         }
         else{
-
+            symbolTable thisTable = currentTable.recursivefindTable(ctx.IDENT(0).getText());
+            temp += space11 + "ldc " + newTexts.get(ctx.expr(0));
+            temp += space11 + "lda ";
+            temp += thisTable.blockLevel + " ";
+            temp += thisTable.var.get(ctx.IDENT(0).getText()) + lineChange;
+            temp += space11 + "add" + lineChange;
+            temp += space11 + "lod ";
+            temp += currentTable.blockLevel + " " + currentTable.var.get(newTexts.get(ctx.expr(0))) + lineChange;
+            temp += space11 + "sti " + thisTable.blockLevel + " " + thisTable.var.get(ctx.IDENT(0)) + lineChange;
         }
+        newTexts.put(ctx, temp);
     }
 
     @Override
@@ -407,7 +457,7 @@ public class UcodeGenListener  extends MiniGoBaseListener {
 
     @Override
     public void enterIf_stmt(MiniGoParser.If_stmtContext ctx) {
-        String childText = String.valueOf(IfForName++);
+        String childText = IFForName();
         currentTable.setChild(childText);
         currentTable = currentTable.childTable.get(childText);
     }
@@ -415,34 +465,33 @@ public class UcodeGenListener  extends MiniGoBaseListener {
     @Override
     public void exitIf_stmt(MiniGoParser.If_stmtContext ctx) {
         String temp = "";
-        int tempBranch;
+        String tempBranch;
         if(ctx.children.size() == 3){
-            tempBranch = getBranchName();
+            tempBranch = BranchName();
             temp += tempBranch + space(String.valueOf(tempBranch)) + "nop" + lineChange;
             temp += newTexts.get(ctx.expr());
-            tempBranch = getBranchName();
+            tempBranch = BranchName();
             temp += space11 + "fjp " + tempBranch + lineChange;
             temp += newTexts.get(ctx.compound_stmt(0));
             temp += tempBranch + space(String.valueOf(tempBranch)) + "nop" + lineChange;
         }
         else{
-            tempBranch = getBranchName();
+            tempBranch = BranchName();
             temp += tempBranch + space(String.valueOf(tempBranch)) + "nop" + lineChange;
             temp += newTexts.get(ctx.expr());
-            tempBranch = getBranchName();
+            tempBranch = BranchName();
             temp += space11 + "fjp " + tempBranch + lineChange;
             temp += newTexts.get(ctx.compound_stmt(0));
             temp += tempBranch + space(String.valueOf(tempBranch)) + "nop" + lineChange;
             temp += newTexts.get(ctx.compound_stmt(1));
         }
-        //System.out.print(temp);
         newTexts.put(ctx, temp);
         currentTable = currentTable.parent;
     }
 
     @Override
     public void enterFor_stmt(MiniGoParser.For_stmtContext ctx) {
-        String childText = String.valueOf(IfForName++);
+        String childText = IFForName();
         currentTable.setChild(childText);
         currentTable = currentTable.childTable.get(childText);
     }
@@ -450,18 +499,17 @@ public class UcodeGenListener  extends MiniGoBaseListener {
     @Override
     public void exitFor_stmt(MiniGoParser.For_stmtContext ctx) {
         String temp = "";
-        int tempBranch1, tempBranch2;
-        tempBranch1 = getBranchName();
+        String tempBranch1, tempBranch2;
+        tempBranch1 = BranchName();
         temp += tempBranch1 + space(String.valueOf(tempBranch1)) + "nop" + lineChange;
         temp += newTexts.get(ctx.expr());
-        tempBranch2 = getBranchName();
+        tempBranch2 = BranchName();
         temp += space11 + "fjp " + tempBranch2 + lineChange;
         temp += newTexts.get(ctx.compound_stmt());
-        temp += space11 + "ujp"  + tempBranch1 + lineChange;
+        temp += space11 + "ujp "  + tempBranch1 + lineChange;
         temp += tempBranch2 + space(String.valueOf(tempBranch2)) + "nop" + lineChange;
-
-
         newTexts.put(ctx,temp);
+        currentTable = currentTable.parent;
     }
 
     @Override
@@ -473,13 +521,13 @@ public class UcodeGenListener  extends MiniGoBaseListener {
     public void exitReturn_stmt(MiniGoParser.Return_stmtContext ctx) {
         String temp = "";
         if(ctx.children.size() == 4){
-            temp += space11 + "ldi" + newTexts.get(ctx.expr(0)) + lineChange;
+            temp += newTexts.get(ctx.expr(0));
             temp += space11 + "retv" + lineChange;
-            temp += space11 + "ldi" + newTexts.get(ctx.expr(1)) + lineChange;
+            temp += newTexts.get(ctx.expr(1));
             temp += space11 + "retv" + lineChange;
         }
         else if(ctx.children.size() == 2){
-            temp += space11 + "ldi" + newTexts.get(ctx.expr(0)) + lineChange;
+            temp += newTexts.get(ctx.expr(0));
             temp += space11 + "retv" + lineChange;
         }
         else{
@@ -493,7 +541,7 @@ public class UcodeGenListener  extends MiniGoBaseListener {
         if(ctx.children.size() == 3){
             currentTable.var.put(ctx.children.get(1).getText(), currentTable.offset + 1);
             currentTable.funcVarArg.add(ctx.children.get(0).getText());
-            currentTable.varSize.put(ctx.children.get(1).getText() ,1);
+            currentTable.varSize.put(ctx.children.get(1).getText() , 1);
             currentTable.offset++;
         }
         else{
@@ -539,7 +587,12 @@ public class UcodeGenListener  extends MiniGoBaseListener {
 
     @Override
     public void exitArgs(MiniGoParser.ArgsContext ctx) {
-        super.exitArgs(ctx);
+        String temp = "";
+        for(int i=0; i<ctx.expr().size(); i++){
+            temp += space11 + "lod " + currentTable.recursivefindTable(ctx.expr(i).getText()).blockLevel +" ";
+            temp += currentTable.recursivefindTable(ctx.expr(i).getText()).var.get(ctx.expr(i).getText()) + lineChange;
+        }
+        newTexts.put(ctx, temp);
     }
 
     @Override

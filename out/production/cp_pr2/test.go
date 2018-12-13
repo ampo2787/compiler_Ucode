@@ -11,8 +11,8 @@ func sumten(i int) (int, int) {
     }
 }
 
-func sum(i){
-    a (b , a)
+func sum(r, t){
+    sum (r , t)
     ++ b
     a * b
     a % b
@@ -20,24 +20,19 @@ func sum(i){
         return
     }
     if(a == b){
-        for a {
-            return a,b
+        for a == 10 {
+            return a
         }
     }else{
         fmt.a (b , a)
         return a
     }
-    a ()
-    a [10]
-    a [20] = b
-
 }
 
 func main() {
-    var a int
-    var b int
-    var c [15] int
-    var d
-    var e [16] int
-    sumten(b)
+    var z int
+    var x int
+    var q [15] int
+    var w
+    var r [16] int
 }
