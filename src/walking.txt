@@ -5,4 +5,28 @@ local_decl 끝
 
 func_decl 파라미터 넘어가. 끝
 
-expr 넘어가.
+param 크기는 어떻게????
+
+if_stmt (아마도 ?) 끝.
+
+compound_stmt 끝.
+
+expr_stmt 끝.
+
+stmt 끝.
+
+return_stmt 두개리턴 빼고 끝.
+
+expr {
+singlebinaryOperation 끝.
+binaryOperation 끝.
+equal, 배열 equal 끝.
+    남은것 ::::
+expr      : (LITERAL|IDENT)
+         | '(' expr ')'
+         | IDENT '[' expr ']'
+         | IDENT '(' args ')'
+         | FMT '.' IDENT '(' args ')'
+}
+
+assign_stmt 하는중.

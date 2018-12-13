@@ -7,24 +7,24 @@ var k
 
 func sumten(i int) (int, int) {
     for i < 10 {
-        a = i
+        a = b
     }
 }
 
 func sum(i){
-    a (k , a)
-    ++ af
+    a (b , a)
+    ++ b
     a * b
     a % b
-    if(a){
+    if(a == b){
         return
     }
-    if(b){
+    if(a == b){
         for a {
             return a,b
         }
     }else{
-        fmt.a (k , a)
+        fmt.a (b , a)
         return a
     }
     a ()

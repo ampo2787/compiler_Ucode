@@ -28,12 +28,16 @@ public class symbolTable {
 
     public void setChild(String s){
         symbolTable temp = new symbolTable();
+        temp.blockLevel = this.blockLevel+1;
         temp.parent = this;
         childTable.put(s, temp);
     }
 
     public symbolTable recursivefindTable(String s){
-        if(childTable.isEmpty() && parent == null){
+        if(var.containsKey(s)){
+            return this;
+        }
+        if(parent == null){
             return null;
         }
 
