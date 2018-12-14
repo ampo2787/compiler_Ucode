@@ -5,7 +5,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 public class UcodeGenerator {
     public static void main(String[] args) throws IOException{
-        MiniGoLexer lexer = new MiniGoLexer(CharStreams.fromFileName("src/test.go"));
+        MiniGoLexer lexer = new MiniGoLexer(CharStreams.fromFileName("src/walking.txt"));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         MiniGoParser parser = new MiniGoParser(tokens);
         ParseTree tree = parser.program();

@@ -12,11 +12,9 @@ func sumten(i int) (int, int) {
 }
 
 func sum(r, t){
-    sum (r , t)
     ++ b
-    a * b
-    a % b
     if(a == b){
+        f [11] = 1
         return
     }
     if(a == b){
@@ -24,6 +22,7 @@ func sum(r, t){
             return a
         }
     }else{
+        var y int
         fmt.a (b , a)
         return a
     }
@@ -35,4 +34,5 @@ func main() {
     var q [15] int
     var w
     var r [16] int
+    sum(z,x)
 }

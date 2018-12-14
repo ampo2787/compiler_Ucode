@@ -5,7 +5,6 @@ public class symbolTable {
     HashMap<String, Integer> var;
     ArrayList<String> type_spec;
     ArrayList<String> funcVarArg;
-    ArrayList<String> arg;
     HashMap<String, Integer> varSize;
     int blockLevel;
     int offset;
@@ -19,7 +18,6 @@ public class symbolTable {
         funcVarArg = new ArrayList<>();
         varSize = new HashMap<>();
         childTable = new HashMap<>();
-        arg = new ArrayList<>();
         this.parent = null;
         blockLevel = 1;
         offset = 0;
