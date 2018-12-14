@@ -4,7 +4,7 @@ import java.util.HashMap;
 public class symbolTable {
     HashMap<String, Integer> var;
     ArrayList<String> type_spec;
-    ArrayList<String> funcVarArg;
+    ArrayList<String> ArgList;
     HashMap<String, Integer> varSize;
     int blockLevel;
     int offset;
@@ -15,7 +15,7 @@ public class symbolTable {
     public symbolTable(){
         var = new HashMap<>();
         type_spec = new ArrayList<>();
-        funcVarArg = new ArrayList<>();
+        ArgList = new ArrayList<>();
         varSize = new HashMap<>();
         childTable = new HashMap<>();
         this.parent = null;

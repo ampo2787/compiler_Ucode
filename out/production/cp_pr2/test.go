@@ -11,11 +11,11 @@ func sumten(i int) (int, int) {
     }
 }
 
-func sum(r, t){
+func sum(r, t) int{
     ++ b
     if(a == b){
         f [11] = 1
-        return
+        return b
     }
     if(a == b){
         for a == 10 {
@@ -23,7 +23,7 @@ func sum(r, t){
         }
     }else{
         var y int
-        fmt.a (b , a)
+        fmt.write (b)
         return a
     }
 }
