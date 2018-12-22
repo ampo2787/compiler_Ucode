@@ -171,6 +171,18 @@ public class MiniGoBaseListener implements MiniGoListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterSwitch_stmt(MiniGoParser.Switch_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSwitch_stmt(MiniGoParser.Switch_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterReturn_stmt(MiniGoParser.Return_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -190,6 +202,18 @@ public class MiniGoBaseListener implements MiniGoListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitLocal_decl(MiniGoParser.Local_declContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLoop_expr(MiniGoParser.Loop_exprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLoop_expr(MiniGoParser.Loop_exprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

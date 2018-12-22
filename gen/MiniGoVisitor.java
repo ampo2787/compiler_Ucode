@@ -88,6 +88,12 @@ public interface MiniGoVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFor_stmt(MiniGoParser.For_stmtContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link MiniGoParser#switch_stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSwitch_stmt(MiniGoParser.Switch_stmtContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link MiniGoParser#return_stmt}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -99,6 +105,12 @@ public interface MiniGoVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitLocal_decl(MiniGoParser.Local_declContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link MiniGoParser#loop_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLoop_expr(MiniGoParser.Loop_exprContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link MiniGoParser#expr}.
 	 * @param ctx the parse tree
