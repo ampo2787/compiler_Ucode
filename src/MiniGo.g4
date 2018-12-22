@@ -27,12 +27,10 @@ assign_stmt : VAR IDENT ',' IDENT type_spec ':=' LITERAL ',' LITERAL
          | IDENT type_spec ':=' expr
          | IDENT '[' expr ']' ':=' expr ;
 compound_stmt: '{' local_decl* stmt* '}';
-if_stmt       : IF expr compound_stmt
-         | IF expr compound_stmt ELSE compound_stmt
-         | IF expr compound_stmt (ELSE_IF expr compound_stmt)* ELSE compound_stmt ;
+if_stmt       : IF expr compound_stmt (ELSE_IF expr compound_stmt)* (ELSE compound_stmt)? ;
 for_stmt    : FOR expr compound_stmt
             | FOR loop_expr stmt ;
-switch_stmt     : SWITCH expr '{' CASE LITERAL '}';
+switch_stmt     : SWITCH expr '{' (CASE LITERAL expr*)* (DEFAULT expr*)? '}';
 return_stmt    : RETURN expr ',' expr
          | RETURN expr
          | RETURN ;
@@ -63,7 +61,9 @@ FOR          : 'for'   ;
 IF       : 'if'    ;
 ELSE      : 'else'  ;
 ELSE_IF     : 'else if' ;
+CASE        : 'case' ;
 SWITCH      : 'switch' ;
+DEFAULT     : 'default' ;
 RETURN    : 'return';
 OR       : 'or'    ;
 AND          : 'and'   ;

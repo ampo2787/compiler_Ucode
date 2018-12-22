@@ -463,27 +463,63 @@ public class UcodeGenListener  extends MiniGoBaseListener {
     @Override
     public void exitIf_stmt(MiniGoParser.If_stmtContext ctx) {
         String temp = "";
+        String ENDIF = "endIF";
         String tempBranch, tempBranch1;
-        if(ctx.children.size() == 3){
-            temp += newTexts.get(ctx.expr());
-            tempBranch = BranchName();
-            temp += space11 + "fjp " + tempBranch + lineChange;
-            temp += newTexts.get(ctx.compound_stmt(0));
-            temp += tempBranch + space(String.valueOf(tempBranch)) + "nop" + lineChange;
-        }
-        else{
-            temp += newTexts.get(ctx.expr());
-            tempBranch = BranchName();
-            temp += space11 + "fjp " + tempBranch + lineChange;
-            temp += newTexts.get(ctx.compound_stmt(0));
-            tempBranch1 = BranchName();
-            temp += space11 + "ujp " + tempBranch1 + lineChange;
-            temp += tempBranch + space(String.valueOf(tempBranch)) + "nop" + lineChange;
-            temp += newTexts.get(ctx.compound_stmt(1));
-            temp += tempBranch1 + space(String.valueOf(tempBranch)) + "nop" + lineChange;
-        }
-        newTexts.put(ctx, temp);
-        currentTable = currentTable.parent;
+            if(ctx.expr().size() == 1){
+                temp += newTexts.get(ctx.expr(0));
+                tempBranch = BranchName();
+                temp += space11 + "fjp " + tempBranch + lineChange;
+                temp += newTexts.get(ctx.compound_stmt(0));
+                temp += tempBranch + space(String.valueOf(tempBranch)) + "nop" + lineChange;
+            }
+            else if(ctx.expr().size() != ctx.compound_stmt().size() && ctx.compound_stmt().size() == 1) { //else 존재.
+                temp += newTexts.get(ctx.expr(0));
+                tempBranch = BranchName();
+                temp += space11 + "fjp " + tempBranch + lineChange;
+                temp += newTexts.get(ctx.compound_stmt(0));
+                tempBranch1 = BranchName();
+                temp += space11 + "ujp " + tempBranch1 + lineChange;
+                temp += tempBranch + space(String.valueOf(tempBranch)) + "nop" + lineChange;
+                temp += newTexts.get(ctx.compound_stmt(1));
+                temp += tempBranch1 + space(String.valueOf(tempBranch)) + "nop" + lineChange;
+
+            }
+            /*else if(ctx.expr().size() == ctx.compound_stmt().size()) { // if와 else if 만 존재.
+                for (int i = 0; i < ctx.expr().size() - 1; i++) {
+                    temp += newTexts.get(ctx.expr(i));
+                    tempBranch = BranchName();
+                    temp += space11 + "fjp " + tempBranch + lineChange;
+                    temp += newTexts.get(ctx.compound_stmt(i));
+                    temp += space11 + "ujp " + ENDIF + lineChange;
+                    temp += tempBranch + space(String.valueOf(tempBranch)) + "nop" + lineChange;
+                }
+                temp += ENDIF + space(String.valueOf(ENDIF)) + "nop" + lineChange;
+            }*/
+            else{ //if, else if, else.
+                for (int i = 0; i < ctx.expr().size() - 1; i++) {
+                    temp += newTexts.get(ctx.expr(i));
+                    tempBranch = BranchName();
+                    temp += space11 + "fjp " + tempBranch + lineChange;
+                    temp += newTexts.get(ctx.compound_stmt(i));
+                    temp += space11 + "ujp " + ENDIF + lineChange;
+                    temp += tempBranch + space(String.valueOf(tempBranch)) + "nop" + lineChange;
+                }
+
+                if(ctx.expr().size() == ctx.compound_stmt().size()) { //else 없음.
+                    temp += newTexts.get(ctx.expr(ctx.expr().size() - 1));
+                    temp += space11 + "fjp " + ENDIF + lineChange;
+                    temp += newTexts.get(ctx.compound_stmt(ctx.compound_stmt().size() - 1));
+                    temp += ENDIF + space(String.valueOf(ENDIF)) + "nop" + lineChange;
+                }
+                else{ //else 있음.
+                    temp += newTexts.get(ctx.expr(ctx.expr().size() - 1));
+                    temp += space11 + "fjp " + ENDIF + lineChange;
+                    temp += newTexts.get(ctx.compound_stmt(ctx.compound_stmt().size() - 1));
+                    temp += ENDIF + space(String.valueOf(ENDIF)) + "nop" + lineChange;
+                }
+            }
+            newTexts.put(ctx, temp);
+            currentTable = currentTable.parent;
     }
 
     @Override
@@ -575,6 +611,26 @@ public class UcodeGenListener  extends MiniGoBaseListener {
         newTexts.put(ctx, temp);
     }
 
+
+    @Override
+    public void enterSwitch_stmt(MiniGoParser.Switch_stmtContext ctx) {
+        super.enterSwitch_stmt(ctx);
+    }
+
+    @Override
+    public void exitSwitch_stmt(MiniGoParser.Switch_stmtContext ctx) {
+        super.exitSwitch_stmt(ctx);
+    }
+
+    @Override
+    public void enterLoop_expr(MiniGoParser.Loop_exprContext ctx) {
+        super.enterLoop_expr(ctx);
+    }
+
+    @Override
+    public void exitLoop_expr(MiniGoParser.Loop_exprContext ctx) {
+        super.exitLoop_expr(ctx);
+    }
 
     public String space(String title){
         int spaceSize = 11 - title.length();
