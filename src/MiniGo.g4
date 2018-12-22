@@ -21,19 +21,23 @@ stmt      : expr_stmt
          | for_stmt
          | return_stmt;
 expr_stmt  : expr ;
-assign_stmt : VAR IDENT ',' IDENT type_spec '=' LITERAL ',' LITERAL
-         | VAR IDENT type_spec '=' expr
-         | IDENT type_spec '=' expr
-         | IDENT '[' expr ']' '=' expr ;
+assign_stmt : VAR IDENT ',' IDENT type_spec ':=' LITERAL ',' LITERAL
+         | VAR IDENT type_spec ':=' expr
+         | IDENT type_spec ':=' expr
+         | IDENT '[' expr ']' ':=' expr ;
 compound_stmt: '{' local_decl* stmt* '}';
 if_stmt       : IF expr compound_stmt
-         | IF expr compound_stmt ELSE compound_stmt ;
-for_stmt    : FOR expr compound_stmt;
+         | IF expr compound_stmt ELSE compound_stmt
+         | IF expr compound_stmt ELSE_IF expr compound_stmt ELSE compound_stmt ;
+for_stmt    : FOR expr compound_stmt
+            | FOR loop_expr stmt ;
+switch_stmt     : SWITCH expr '{' CASE LITERAL '}';
 return_stmt    : RETURN expr ',' expr
          | RETURN expr
          | RETURN ;
 local_decl : VAR IDENT type_spec
              | VAR IDENT '[' LITERAL ']' type_spec;
+loop_expr : expr ';' expr ';' expr ('++'|'--') ;
 expr      : (LITERAL|IDENT)
          | '(' expr ')' 
          | IDENT '[' expr ']' 
@@ -44,8 +48,8 @@ expr      : (LITERAL|IDENT)
          | left=expr op=('+'|'-') right=expr 
          | left=expr op=(EQ|NE|LE|'<'|GE|'>'|AND|OR) right=expr
          | LITERAL ',' LITERAL
-         | IDENT '=' expr
-         | IDENT '[' expr ']' '=' expr;
+         | IDENT ':=' expr
+         | IDENT '[' expr ']' ':=' expr;
 args      : expr (',' expr) * 
          | ;
          
@@ -57,6 +61,8 @@ INT          : 'int'   ;
 FOR          : 'for'   ;
 IF       : 'if'    ;
 ELSE      : 'else'  ;
+ELSE_IF     : 'else if' ;
+SWITCH      : 'switch' ;
 RETURN    : 'return';
 OR       : 'or'    ;
 AND          : 'and'   ;
