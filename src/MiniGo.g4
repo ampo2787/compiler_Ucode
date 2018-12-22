@@ -30,7 +30,7 @@ compound_stmt: '{' local_decl* stmt* '}';
 if_stmt       : IF expr compound_stmt (ELSE_IF expr compound_stmt)* (ELSE compound_stmt)? ;
 for_stmt    : FOR expr compound_stmt
             | FOR loop_expr stmt ;
-switch_stmt     : SWITCH expr '{' (CASE LITERAL expr*)* (DEFAULT expr*)? '}';
+switch_stmt     : SWITCH IDENT '{' (CASE ':' LITERAL stmt*)* (DEFAULT ':' stmt*)? '}';
 return_stmt    : RETURN expr ',' expr
          | RETURN expr
          | RETURN ;

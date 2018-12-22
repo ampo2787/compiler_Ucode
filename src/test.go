@@ -11,6 +11,15 @@ fmt.write(a(f,kkk))
 
 func a (b int, c [] int) int{
 var kk int := b + c[3]
+
+switch kk {
+    case 1
+
+    case 2
+
+    default
+
+}
 return kk
 
 }
