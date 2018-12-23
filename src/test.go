@@ -13,12 +13,12 @@ func a (b int, c [] int) int{
 var kk int := b + c[3]
 
 switch kk {
-    case 1
-
-    case 2
-
-    default
-
+    case 1:
+        kk := 1
+    case 2:
+        kk := 2
+    default:
+        kk := 444
 }
 return kk
 

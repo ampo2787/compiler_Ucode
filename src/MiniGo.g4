@@ -6,8 +6,8 @@ var_decl   : VAR IDENT type_spec
          | VAR IDENT ',' IDENT type_spec
          | VAR IDENT '[' LITERAL ']' type_spec ;
 type_spec  : INT 
-         | VOID 
-         | ; 
+         | VOID
+         | ;
 fun_decl   : FUNC IDENT '(' params ')' type_spec compound_stmt  
          | FUNC IDENT '(' params ')' '(' type_spec ',' type_spec ')' compound_stmt;
 params    :  
@@ -30,7 +30,7 @@ compound_stmt: '{' local_decl* stmt* '}';
 if_stmt       : IF expr compound_stmt (ELSE_IF expr compound_stmt)* (ELSE compound_stmt)? ;
 for_stmt    : FOR expr compound_stmt
             | FOR loop_expr stmt ;
-switch_stmt     : SWITCH IDENT '{' (CASE ':' LITERAL stmt*)* (DEFAULT ':' stmt*)? '}';
+switch_stmt     : SWITCH IDENT '{' (CASE LITERAL ':' stmt)* (DEFAULT ':' stmt)? '}';
 return_stmt    : RETURN expr ',' expr
          | RETURN expr
          | RETURN ;

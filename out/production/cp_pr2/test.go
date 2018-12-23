@@ -11,14 +11,14 @@ fmt.write(a(f,kkk))
 
 func a (b int, c [] int) int{
 var kk int := b + c[3]
-if kk < 3 {
-    kk := 3
-}
-else if kk < 2{
-    kk := 2
-}
-else{
-    kk := 444
+
+switch kk {
+    case 1:
+        kk := 1
+    case 2:
+        kk := 2
+    default:
+        kk := 444
 }
 return kk
 

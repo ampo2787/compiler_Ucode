@@ -1,4 +1,3 @@
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 public class UcodeGenListener  extends MiniGoBaseListener {
@@ -9,6 +8,7 @@ public class UcodeGenListener  extends MiniGoBaseListener {
 
     private int ifPointer = 0;
     private int elsePointer = 0;
+    private int SwitchPointer = 0;
 
     ParseTreeProperty<String> newTexts = new ParseTreeProperty<String>();
     symbolTable globalSymtab = new symbolTable();
@@ -26,6 +26,7 @@ public class UcodeGenListener  extends MiniGoBaseListener {
     private String getElsePointer(){
         return "ELSE" + elsePointer++;
     }
+    private String getSwitchPorinter() { return "Switch" + SwitchPointer++; }
 
     boolean isNormalOperation(MiniGoParser.ExprContext ctx){
         return ctx.getChildCount() == 1 || ctx.getChildCount() == 0;
@@ -445,18 +446,28 @@ public class UcodeGenListener  extends MiniGoBaseListener {
 
     @Override
     public void enterIf_stmt(MiniGoParser.If_stmtContext ctx) {
-        if(ctx.children.size() == 3){
-            String childText = getIfPointer();
+        String childText;
+        if(ctx.expr().size() == 1){ //if만 존재
+            childText = getIfPointer();
             currentTable.setChild(childText);
             currentTable = currentTable.childTable.get(childText);
         }
-        else {
-            String childText = getIfPointer();
+        else if(ctx.expr().size() != ctx.compound_stmt().size() && ctx.compound_stmt().size() == 1) { //else 존재.
+            childText = getIfPointer();
             currentTable.setChild(childText);
             currentTable = currentTable.childTable.get(childText);
             childText = getElsePointer();
             currentTable.setChild(childText);
             currentTable = currentTable.childTable.get(childText);
+        }
+        else {childText = getIfPointer();
+            currentTable.setChild(childText);
+            currentTable = currentTable.childTable.get(childText);
+            for(int i=0; i< ctx.expr().size() - 1; i++){
+                childText = getElsePointer();
+                currentTable.setChild(childText);
+                currentTable = currentTable.childTable.get(childText);
+            }
         }
     }
 
@@ -614,12 +625,39 @@ public class UcodeGenListener  extends MiniGoBaseListener {
 
     @Override
     public void enterSwitch_stmt(MiniGoParser.Switch_stmtContext ctx) {
-        super.enterSwitch_stmt(ctx);
+
     }
 
     @Override
     public void exitSwitch_stmt(MiniGoParser.Switch_stmtContext ctx) {
-        super.exitSwitch_stmt(ctx);
+        String ENDSWITCH = "EndSwitch";
+        String temp = "";
+        String lodThis = space11 + "lod " + currentTable.recursivefindTable(ctx.IDENT().getText()).var.get(ctx.IDENT().getText());
+        lodThis += " 1" + lineChange;
+        String thisSwitchPointer;
+        for(int i=0; i < ctx.CASE().size() - 1; i++){
+            thisSwitchPointer = getSwitchPorinter();
+            temp += lodThis;
+            temp += space11 + "ldc " + ctx.LITERAL(i) + lineChange;
+            temp += space11 + "eq" + lineChange;
+            temp += space11 + "fjp " + thisSwitchPointer + lineChange;
+            temp += newTexts.get(ctx.stmt(i));
+            temp += thisSwitchPointer + space(thisSwitchPointer) + "nop" +lineChange;
+        }
+
+        temp += lodThis;
+        temp += space11 + "ldc " + ctx.LITERAL(ctx.CASE().size() - 1) + lineChange;
+        temp += space11 + "eq" + lineChange;
+        temp += space11 + "fjp " + ENDSWITCH + lineChange;
+        temp += newTexts.get(ctx.stmt(ctx.stmt().size() - 2));
+        if(ctx.DEFAULT() != null){
+            temp += ENDSWITCH + space(ENDSWITCH) + "nop" + lineChange;
+            temp += newTexts.get(ctx.stmt(ctx.stmt().size() - 1));
+        }
+        else{
+            temp += ENDSWITCH + space(ENDSWITCH) + "nop" + lineChange;
+        }
+        newTexts.put(ctx, temp);
     }
 
     @Override
