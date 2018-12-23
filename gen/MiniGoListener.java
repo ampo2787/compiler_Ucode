@@ -167,16 +167,6 @@ public interface MiniGoListener extends ParseTreeListener {
 	 */
 	void exitLocal_decl(MiniGoParser.Local_declContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link MiniGoParser#loop_expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterLoop_expr(MiniGoParser.Loop_exprContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link MiniGoParser#loop_expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitLoop_expr(MiniGoParser.Loop_exprContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link MiniGoParser#expr}.
 	 * @param ctx the parse tree
 	 */

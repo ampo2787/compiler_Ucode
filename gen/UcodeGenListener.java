@@ -545,14 +545,31 @@ public class UcodeGenListener  extends MiniGoBaseListener {
         String temp = "";
         String tempBranch1, tempBranch2;
         tempBranch1 = BranchName();
+
+        if(ctx.children.size() != 3) {
+            temp += newTexts.get(ctx.expr(0));
+        }
         temp += tempBranch1 + space(String.valueOf(tempBranch1)) + "nop" + lineChange;
-        temp += newTexts.get(ctx.expr());
+
+        if(ctx.children.size() == 3) {
+            temp += newTexts.get(ctx.expr(0));
+        }
+        else{
+            temp += newTexts.get(ctx.expr(1));
+        }
+
         tempBranch2 = BranchName();
         temp += space11 + "fjp " + tempBranch2 + lineChange;
         temp += newTexts.get(ctx.compound_stmt());
-        temp += space11 + "ujp "  + tempBranch1 + lineChange;
+
+        if(ctx.children.size() != 3){
+            temp += newTexts.get(ctx.expr(2));
+            temp += space11 + "inc" +lineChange;
+        }
+
+        temp += space11 + "ujp " + tempBranch1 + lineChange;
         temp += tempBranch2 + space(String.valueOf(tempBranch2)) + "nop" + lineChange;
-        newTexts.put(ctx,temp);
+        newTexts.put(ctx, temp);
         currentTable = currentTable.parent;
     }
 
@@ -660,15 +677,6 @@ public class UcodeGenListener  extends MiniGoBaseListener {
         newTexts.put(ctx, temp);
     }
 
-    @Override
-    public void enterLoop_expr(MiniGoParser.Loop_exprContext ctx) {
-        super.enterLoop_expr(ctx);
-    }
-
-    @Override
-    public void exitLoop_expr(MiniGoParser.Loop_exprContext ctx) {
-        super.exitLoop_expr(ctx);
-    }
 
     public String space(String title){
         int spaceSize = 11 - title.length();

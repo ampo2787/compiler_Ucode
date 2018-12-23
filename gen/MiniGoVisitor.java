@@ -106,12 +106,6 @@ public interface MiniGoVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitLocal_decl(MiniGoParser.Local_declContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link MiniGoParser#loop_expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLoop_expr(MiniGoParser.Loop_exprContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link MiniGoParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
