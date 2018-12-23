@@ -460,7 +460,8 @@ public class UcodeGenListener  extends MiniGoBaseListener {
             currentTable.setChild(childText);
             currentTable = currentTable.childTable.get(childText);
         }
-        else {childText = getIfPointer();
+        else {
+            childText = getIfPointer();
             currentTable.setChild(childText);
             currentTable = currentTable.childTable.get(childText);
             for(int i=0; i< ctx.expr().size() - 1; i++){
@@ -476,7 +477,7 @@ public class UcodeGenListener  extends MiniGoBaseListener {
         String temp = "";
         String ENDIF = "endIF";
         String tempBranch, tempBranch1;
-            if(ctx.expr().size() == 1){
+            if(ctx.expr().size() == 1){//if만 존재.
                 temp += newTexts.get(ctx.expr(0));
                 tempBranch = BranchName();
                 temp += space11 + "fjp " + tempBranch + lineChange;
@@ -564,7 +565,10 @@ public class UcodeGenListener  extends MiniGoBaseListener {
 
         if(ctx.children.size() != 3){
             temp += newTexts.get(ctx.expr(2));
-            temp += space11 + "inc" +lineChange;
+            if(ctx.getChild(6).getText().equals("++"))
+                temp += space11 + "inc" +lineChange;
+            else
+                temp += space11 + "dec" + lineChange;
         }
 
         temp += space11 + "ujp " + tempBranch1 + lineChange;
@@ -652,6 +656,7 @@ public class UcodeGenListener  extends MiniGoBaseListener {
         String lodThis = space11 + "lod " + currentTable.recursivefindTable(ctx.IDENT().getText()).var.get(ctx.IDENT().getText());
         lodThis += " 1" + lineChange;
         String thisSwitchPointer;
+
         for(int i=0; i < ctx.CASE().size() - 1; i++){
             thisSwitchPointer = getSwitchPorinter();
             temp += lodThis;

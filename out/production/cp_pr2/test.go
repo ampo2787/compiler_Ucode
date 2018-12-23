@@ -12,8 +12,8 @@ fmt.write(a(f,kkk))
 func a (b int, c [] int) int{
 var kk int := b + c[3]
 
-for f := 0; f < 5; f++ {
-     ++f
+for kk := 0; kk < 4; kk++ {
+    ++kk
 }
 
 switch kk {
@@ -24,15 +24,17 @@ switch kk {
     default:
         kk := 444
 }
-    if kk < 3{
-        kk := 9
-    }
-    else if kk < 4 {
-        kk := 10
-    }
-    else{
-        kk := 777
-    }
+
+if kk < 3 {
+    kk := 111
+}
+else if kk < 4 {
+    kk := 222
+}
+else {
+    kk := 777
+}
+
 
 return kk
 
